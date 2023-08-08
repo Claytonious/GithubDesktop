@@ -24,6 +24,14 @@ export async function installLFSHooks(
   await git(args, repository.path, 'installLFSHooks')
 }
 
+export async function downloadLfsFile(
+  repository: Repository,
+  path: string
+): Promise<void> {
+  const args = ['lfs', 'pull', '--exclude=', '--include', path]
+  await git(args, repository.path, 'downloadLfsFile')
+}
+
 /** Is the repository configured to track any paths with LFS? */
 export async function isUsingLFS(repository: Repository): Promise<boolean> {
   const env = {

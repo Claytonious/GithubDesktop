@@ -68,6 +68,7 @@ interface IChangesSidebarProps {
    * @param fullPath The full path to the file on disk
    */
   readonly onOpenInExternalEditor: (fullPath: string) => void
+  readonly onDownloadLfsFile: (fullPath: string) => void
   readonly onChangesListScrolled: (scrollTop: number) => void
   readonly changesListScrollTop?: number
 
@@ -260,6 +261,10 @@ export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
     this.props.onOpenInExternalEditor(path)
   }
 
+  private onDownloadLfsFile = (path: string) => {
+    this.props.onDownloadLfsFile(path)
+  }
+
   /**
    * Toggles the selection of a given working directory file.
    * If the file is partially selected it the selection is cleared
@@ -425,6 +430,7 @@ export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
           coAuthors={coAuthors}
           externalEditorLabel={this.props.externalEditorLabel}
           onOpenItemInExternalEditor={this.onOpenItemInExternalEditor}
+          onDownloadLfsFile={this.onDownloadLfsFile}
           onChangesListScrolled={this.props.onChangesListScrolled}
           changesListScrollTop={this.props.changesListScrollTop}
           stashEntry={this.props.changes.stashEntry}

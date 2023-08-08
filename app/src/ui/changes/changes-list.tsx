@@ -29,6 +29,7 @@ import {
   CopyRelativeFilePathLabel,
   CopySelectedPathsLabel,
   CopySelectedRelativePathsLabel,
+  DownloadLfsFileLabel
 } from '../lib/context-menu'
 import { CommitMessage } from './commit-message'
 import { ChangedFile } from './changed-file'
@@ -160,6 +161,8 @@ interface IChangesListProps {
    * @param path The path of the file relative to the root of the repository
    */
   readonly onOpenItemInExternalEditor: (path: string) => void
+
+  readonly onDownloadLfsFile: (path: string) => void
 
   /**
    * The currently checked out branch (null if no branch is checked out).
@@ -513,6 +516,19 @@ export class ChangesList extends React.Component<
     }
   }
 
+  private getDownloadLfsFileMenuItem = (
+    file: WorkingDirectoryFileChange,
+    enabled: boolean
+  ): IMenuItem => {
+    return {
+      label: DownloadLfsFileLabel,
+      action: () => {
+        this.props.onDownloadLfsFile(file.path)
+      },
+      enabled
+    }
+  }
+
   private getDefaultContextMenu(
     file: WorkingDirectoryFileChange
   ): ReadonlyArray<IMenuItem> {
@@ -634,6 +650,17 @@ export class ChangesList extends React.Component<
       {
         label: OpenWithDefaultProgramLabel,
         action: () => this.props.onOpenItem(path),
+        enabled: enabled && isSafeExtension,
+      }
+    )
+
+    const downloadEnabled = status.kind !== AppFileStatusKind.Deleted
+    items.push(
+      { type: 'separator' },
+      this.getDownloadLfsFileMenuItem(file, downloadEnabled),
+      {
+        label: DownloadLfsFileLabel,
+        action: () => this.props.onDownloadLfsFile(path),
         enabled: enabled && isSafeExtension,
       }
     )

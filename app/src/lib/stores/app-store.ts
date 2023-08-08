@@ -187,6 +187,7 @@ import {
   installGlobalLFSFilters,
   installLFSHooks,
   isUsingLFS,
+  downloadLfsFile
 } from '../git/lfs'
 import { inferLastPushForRepository } from '../infer-last-push-for-repository'
 import { updateMenuState } from '../menu-update'
@@ -2741,6 +2742,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
     if (selectedSection === RepositorySectionTab.History) {
       return this.refreshHistorySection(repository)
+    } else if (selectedSection === RepositorySectionTab.Lfs) {
+      return this.refreshLfsSection(repository)
     } else if (selectedSection === RepositorySectionTab.Changes) {
       return this.refreshChangesSection(repository, {
         includingStatus: true,
@@ -3338,7 +3341,10 @@ export class AppStore extends TypedBaseStore<IAppState> {
         includingStatus: false,
         clearPartialState: false,
       })
-    } else {
+    } else if (section === RepositorySectionTab.Lfs) {
+      refreshSectionPromise = this.refreshHistorySection(repository)
+    }
+    else {
       return assertNever(section, `Unknown section: ${section}`)
     }
 
@@ -3582,6 +3588,21 @@ export class AppStore extends TypedBaseStore<IAppState> {
     )
   }
 
+  private async refreshLfsSection(repository: Repository): Promise<void> {
+    const gitStore = this.gitStoreCache.get(repository)
+    const state = this.repositoryStateCache.get(repository)
+    const tip = state.branchesState.tip
+
+    if (tip.kind === TipState.Valid) {
+      await gitStore.loadLocalCommits(tip.branch)
+    }
+
+    return this.updateOrSelectFirstCommit(
+      repository,
+      state.compareState.commitSHAs
+    )
+  }
+  
   public async _refreshAuthor(repository: Repository): Promise<void> {
     const gitStore = this.gitStoreCache.get(repository)
     const commitAuthor =
@@ -5374,6 +5395,14 @@ export class AppStore extends TypedBaseStore<IAppState> {
       }
 
       await launchExternalEditor(fullPath, match)
+    } catch (error) {
+      this.emitError(error)
+    }
+  }
+
+  public async _downloadLfsFile(repository: Repository, fullPath: string): Promise<void> {
+    try {
+      await downloadLfsFile(repository, fullPath)
     } catch (error) {
       this.emitError(error)
     }

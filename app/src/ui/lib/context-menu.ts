@@ -29,6 +29,10 @@ export const OpenWithDefaultProgramLabel = __DARWIN__
   ? 'Open with Default Program'
   : 'Open with default program'
 
+export const DownloadLfsFileLabel = __DARWIN__
+  ? 'Download File'
+  : 'Download file'
+
 export function isSafeFileExtension(extension: string): boolean {
   if (__WIN32__) {
     return RestrictedFileExtensions.indexOf(extension.toLowerCase()) === -1

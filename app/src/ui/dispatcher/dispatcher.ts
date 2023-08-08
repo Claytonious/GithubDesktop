@@ -1396,6 +1396,10 @@ export class Dispatcher {
     return this.appStore._openInExternalEditor(fullPath)
   }
 
+  public async downloadLfsFile(repository: Repository, fullPath: string): Promise<void> {
+    return this.appStore._downloadLfsFile(repository, fullPath)
+  }
+
   /**
    * Persist the given content to the repository's root .gitignore.
    *

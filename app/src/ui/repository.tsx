@@ -80,6 +80,7 @@ interface IRepositoryViewProps {
    * @param fullPath The full path to the file on disk
    */
   readonly onOpenInExternalEditor: (fullPath: string) => void
+  readonly onDownloadLfsFile: (fullPath: string) => void
 
   /**
    * The top-level application menu item.
@@ -107,6 +108,7 @@ interface IRepositoryViewState {
 const enum Tab {
   Changes = 0,
   History = 1,
+  Lfs = 2
 }
 
 export class RepositoryView extends React.Component<
@@ -171,10 +173,13 @@ export class RepositoryView extends React.Component<
   }
 
   private renderTabs(): JSX.Element {
-    const selectedTab =
-      this.props.state.selectedSection === RepositorySectionTab.Changes
-        ? Tab.Changes
-        : Tab.History
+    let selectedTab = Tab.Changes;
+    if (this.props.state.selectedSection === RepositorySectionTab.History) {
+      selectedTab = Tab.History;
+    }
+    else if (this.props.state.selectedSection === RepositorySectionTab.Lfs) {
+      selectedTab = Tab.Lfs
+    }
 
     return (
       <TabBar selectedIndex={selectedTab} onTabClicked={this.onTabClicked}>
@@ -182,9 +187,11 @@ export class RepositoryView extends React.Component<
           <span>Changes</span>
           {this.renderChangesBadge()}
         </span>
-
         <div className="with-indicator" id="history-tab">
           <span>History</span>
+        </div>
+        <div className="with-indicator" id="lfs-tab">
+          <span>Large Files</span>
         </div>
       </TabBar>
     )
@@ -213,7 +220,7 @@ export class RepositoryView extends React.Component<
     const availableWidth = clamp(this.props.sidebarWidth) - 1
 
     const scrollTop =
-      this.previousSection === RepositorySectionTab.History
+      this.previousSection !== RepositorySectionTab.Changes
         ? this.state.changesListScrollTop
         : undefined
     this.previousSection = RepositorySectionTab.Changes
@@ -244,6 +251,7 @@ export class RepositoryView extends React.Component<
         isShowingFoldout={this.props.isShowingFoldout}
         externalEditorLabel={this.props.externalEditorLabel}
         onOpenInExternalEditor={this.props.onOpenInExternalEditor}
+        onDownloadLfsFile={this.props.onDownloadLfsFile}
         onChangesListScrolled={this.onChangesListScrolled}
         changesListScrollTop={scrollTop}
         shouldNudgeToCommit={
@@ -272,7 +280,7 @@ export class RepositoryView extends React.Component<
     const currentBranch = tip.kind === TipState.Valid ? tip.branch : null
     const scrollTop =
       this.forceCompareListScrollTop ||
-      this.previousSection === RepositorySectionTab.Changes
+      this.previousSection !== RepositorySectionTab.History
         ? this.state.compareListScrollTop
         : undefined
     this.previousSection = RepositorySectionTab.History
@@ -308,6 +316,71 @@ export class RepositoryView extends React.Component<
     )
   }
 
+  private renderLfsSidebar(): JSX.Element {
+    const tip = this.props.state.branchesState.tip
+
+    let branchName: string | null = null
+
+    if (tip.kind === TipState.Valid) {
+      branchName = tip.branch.name
+    } else if (tip.kind === TipState.Unborn) {
+      branchName = tip.ref
+    }
+
+    const localCommitSHAs = this.props.state.localCommitSHAs
+    const mostRecentLocalCommitSHA =
+      localCommitSHAs.length > 0 ? localCommitSHAs[0] : null
+    const mostRecentLocalCommit =
+      (mostRecentLocalCommitSHA
+        ? this.props.state.commitLookup.get(mostRecentLocalCommitSHA)
+        : null) || null
+
+    // -1 Because of right hand side border
+    const availableWidth = clamp(this.props.sidebarWidth) - 1
+
+    const scrollTop =
+      this.previousSection !== RepositorySectionTab.Lfs
+        ? this.state.changesListScrollTop
+        : undefined
+    this.previousSection = RepositorySectionTab.Lfs
+
+    return (
+      <ChangesSidebar
+        ref={this.changesSidebarRef}
+        repository={this.props.repository}
+        dispatcher={this.props.dispatcher}
+        changes={this.props.state.changesState}
+        aheadBehind={this.props.state.aheadBehind}
+        branch={branchName}
+        commitAuthor={this.props.state.commitAuthor}
+        emoji={this.props.emoji}
+        mostRecentLocalCommit={mostRecentLocalCommit}
+        issuesStore={this.props.issuesStore}
+        availableWidth={availableWidth}
+        gitHubUserStore={this.props.gitHubUserStore}
+        isCommitting={this.props.state.isCommitting}
+        commitToAmend={this.props.state.commitToAmend}
+        isPushPullFetchInProgress={this.props.state.isPushPullFetchInProgress}
+        focusCommitMessage={this.props.focusCommitMessage}
+        askForConfirmationOnDiscardChanges={
+          this.props.askForConfirmationOnDiscardChanges
+        }
+        accounts={this.props.accounts}
+        isShowingModal={this.props.isShowingModal}
+        isShowingFoldout={this.props.isShowingFoldout}
+        externalEditorLabel={this.props.externalEditorLabel}
+        onOpenInExternalEditor={this.props.onOpenInExternalEditor}
+        onDownloadLfsFile={this.props.onDownloadLfsFile}
+        onChangesListScrolled={this.onChangesListScrolled}
+        changesListScrollTop={scrollTop}
+        shouldNudgeToCommit={
+          this.props.currentTutorialStep === TutorialStep.MakeCommit
+        }
+        commitSpellcheckEnabled={this.props.commitSpellcheckEnabled}
+      />
+    )
+  }
+
   private renderSidebarContents(): JSX.Element {
     const selectedSection = this.props.state.selectedSection
 
@@ -315,6 +388,8 @@ export class RepositoryView extends React.Component<
       return this.renderChangesSidebar()
     } else if (selectedSection === RepositorySectionTab.History) {
       return this.renderCompareSidebar()
+    } else if (selectedSection === RepositorySectionTab.Lfs) {
+      return this.renderLfsSidebar()
     } else {
       return assertNever(selectedSection, 'Unknown repository section')
     }
@@ -531,6 +606,74 @@ export class RepositoryView extends React.Component<
     }
   }
 
+  private renderContentForLsf(): JSX.Element | null {
+    const { changesState } = this.props.state
+    const { workingDirectory, selection } = changesState
+
+    if (selection.kind === ChangesSelectionKind.Stash) {
+      return this.renderStashedChangesContent()
+    }
+
+    const { selectedFileIDs, diff } = selection
+
+    if (selectedFileIDs.length > 1) {
+      return <MultipleSelection count={selectedFileIDs.length} />
+    }
+
+    if (workingDirectory.files.length === 0) {
+      if (this.props.currentTutorialStep !== TutorialStep.NotApplicable) {
+        return this.renderTutorialPane()
+      } else {
+        return (
+          <NoChanges
+            key={this.props.repository.id}
+            appMenu={this.props.appMenu}
+            repository={this.props.repository}
+            repositoryState={this.props.state}
+            isExternalEditorAvailable={
+              this.props.externalEditorLabel !== undefined
+            }
+            dispatcher={this.props.dispatcher}
+            pullRequestSuggestedNextAction={
+              this.props.pullRequestSuggestedNextAction
+            }
+          />
+        )
+      }
+    } else {
+      if (selectedFileIDs.length === 0) {
+        return null
+      }
+
+      const selectedFile = workingDirectory.findFileWithID(selectedFileIDs[0])
+
+      if (selectedFile === null) {
+        return null
+      }
+
+      return (
+        <Changes
+          repository={this.props.repository}
+          dispatcher={this.props.dispatcher}
+          file={selectedFile}
+          diff={diff}
+          isCommitting={this.props.state.isCommitting}
+          imageDiffType={this.props.imageDiffType}
+          hideWhitespaceInDiff={this.props.hideWhitespaceInChangesDiff}
+          showSideBySideDiff={this.props.showSideBySideDiff}
+          onOpenBinaryFile={this.onOpenBinaryFile}
+          onOpenSubmodule={this.onOpenSubmodule}
+          onChangeImageDiffType={this.onChangeImageDiffType}
+          askForConfirmationOnDiscardChanges={
+            this.props.askForConfirmationOnDiscardChanges
+          }
+          onDiffOptionsOpened={this.onDiffOptionsOpened}
+          onOpenInExternalEditor={this.props.onOpenInExternalEditor}
+        />
+      )
+    }
+  }
+
   private onOpenBinaryFile = (fullPath: string) => {
     openFile(fullPath, this.props.dispatcher)
   }
@@ -550,6 +693,8 @@ export class RepositoryView extends React.Component<
       return this.renderContentForChanges()
     } else if (selectedSection === RepositorySectionTab.History) {
       return this.renderContentForHistory()
+    } else if (selectedSection === RepositorySectionTab.Lfs) {
+      return this.renderContentForLsf()
     } else {
       return assertNever(selectedSection, 'Unknown repository section')
     }
@@ -628,10 +773,14 @@ export class RepositoryView extends React.Component<
   }
 
   private onTabClicked = (tab: Tab) => {
-    const section =
-      tab === Tab.History
-        ? RepositorySectionTab.History
-        : RepositorySectionTab.Changes
+
+    let section = RepositorySectionTab.Changes;
+    if (tab === Tab.History) {
+      section = RepositorySectionTab.History;
+    }
+    else if (tab === Tab.Lfs) {
+      section = RepositorySectionTab.Lfs;
+    }
 
     this.props.dispatcher.changeRepositorySection(
       this.props.repository,

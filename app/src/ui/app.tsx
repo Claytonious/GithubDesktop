@@ -2807,6 +2807,15 @@ export class App extends React.Component<IAppProps, IAppState> {
     this.props.dispatcher.openInExternalEditor(fullPath)
   }
 
+  private onDownloadLfsFile = (path: string) => {
+    const repository = this.state.selectedState?.repository
+    if (repository === undefined || !(repository instanceof Repository)) {
+      return
+    }
+    const fullPath = Path.join(repository.path, path)
+    this.props.dispatcher.downloadLfsFile(repository, fullPath)
+  }
+
   private showRepository = (repository: Repository | CloningRepository) => {
     if (!(repository instanceof Repository)) {
       return
@@ -3260,6 +3269,7 @@ export class App extends React.Component<IAppProps, IAppState> {
           externalEditorLabel={externalEditorLabel}
           resolvedExternalEditor={state.resolvedExternalEditor}
           onOpenInExternalEditor={this.onOpenInExternalEditor}
+          onDownloadLfsFile={this.onDownloadLfsFile}
           appMenu={state.appMenuState[0]}
           currentTutorialStep={state.currentOnboardingTutorialStep}
           onExitTutorial={this.onExitTutorial}
