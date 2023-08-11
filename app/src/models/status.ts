@@ -259,7 +259,8 @@ export class FileChange {
    */
   public constructor(
     public readonly path: string,
-    public readonly status: AppFileStatus
+    public readonly status: AppFileStatus,
+    public readonly isDownloaded: boolean = false
   ) {
     if (
       status.kind === AppFileStatusKind.Renamed ||
@@ -283,9 +284,10 @@ export class WorkingDirectoryFileChange extends FileChange {
   public constructor(
     path: string,
     status: AppFileStatus,
-    public readonly selection: DiffSelection
+    public readonly selection: DiffSelection,
+    isDownloaded: boolean = false,
   ) {
-    super(path, status)
+    super(path, status, isDownloaded)
   }
 
   /** Create a new WorkingDirectoryFileChange with the given includedness. */
@@ -299,7 +301,7 @@ export class WorkingDirectoryFileChange extends FileChange {
 
   /** Create a new WorkingDirectoryFileChange with the given diff selection. */
   public withSelection(selection: DiffSelection): WorkingDirectoryFileChange {
-    return new WorkingDirectoryFileChange(this.path, this.status, selection)
+    return new WorkingDirectoryFileChange(this.path, this.status, selection, this.isDownloaded)
   }
 }
 
@@ -319,7 +321,7 @@ export class CommittedFileChange extends FileChange {
     public readonly commitish: string,
     public readonly parentCommitish: string
   ) {
-    super(path, status)
+    super(path, status, false)
 
     this.commitish = commitish
   }

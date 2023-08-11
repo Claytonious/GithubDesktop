@@ -683,6 +683,7 @@ export type ChangesSelection =
 
 export interface IChangesState {
   readonly workingDirectory: WorkingDirectoryStatus
+  readonly lfsDirectory: WorkingDirectoryStatus
 
   /** The commit message for a work-in-progress commit in the changes view. */
   readonly commitMessage: ICommitMessage

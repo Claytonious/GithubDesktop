@@ -18,6 +18,7 @@ import {
   IStatusHeader,
   isStatusHeader,
   isStatusEntry,
+  parseLfsFiles
 } from '../status-parser'
 import { DiffSelectionType, DiffSelection } from '../../models/diff'
 import { Repository } from '../../models/repository'
@@ -70,6 +71,8 @@ export interface IStatusResult {
 
   /** the absolute path to the repository's working directory */
   readonly workingDirectory: WorkingDirectoryStatus
+
+  readonly lfsDirectory?: WorkingDirectoryStatus
 
   /** whether conflicting files present on repository */
   readonly doConflictedFilesExist: boolean
@@ -134,6 +137,14 @@ function parseConflictedState(
   }
 }
 
+function createLfsAppStatus(
+): AppFileStatus {
+  return {
+    kind: AppFileStatusKind.Untracked,
+    submoduleStatus: {commitChanged: false, modifiedChanges: false, untrackedChanges:false}
+  }
+}
+
 function convertToAppStatus(
   path: string,
   entry: FileEntry,
@@ -193,6 +204,32 @@ const conflictStatusCodes = ['DD', 'AU', 'UD', 'UA', 'DU', 'AA', 'UU']
 export async function getStatus(
   repository: Repository
 ): Promise<IStatusResult | null> {
+
+  const lfsArgs = [
+    'lfs',
+    'ls-files',
+    '-l'
+  ]
+  
+  const lfsResult = await spawnAndComplete(
+    lfsArgs,
+    repository.path,
+    'lsLfs',
+    new Set([0, 128])
+  )
+
+  if (lfsResult.exitCode !== 0) {
+    log.error(`git lfs ls-files returned error ${lfsResult.exitCode}`)
+  }
+
+  const parsedLfsFiles = parseLfsFiles(lfsResult.output.toString('utf8'))
+  const lfsEntries = parsedLfsFiles.filter(isStatusEntry)
+  const lfsFiles = lfsEntries.reduce(
+    (files, entry) => buildLfsMap(files, entry),
+    new Map<string, WorkingDirectoryFileChange>()
+  )
+  const lfsDirectory = WorkingDirectoryStatus.fromFiles([...lfsFiles.values()])
+
   const args = [
     '--no-optional-locks',
     'status',
@@ -275,10 +312,23 @@ export async function getStatus(
     mergeHeadFound,
     rebaseInternalState,
     workingDirectory,
+    lfsDirectory,
     isCherryPickingHeadFound,
     squashMsgFound,
     doConflictedFilesExist: conflictedFilesInIndex,
   }
+}
+
+function buildLfsMap(
+  files: Map<string, WorkingDirectoryFileChange>,
+  entry: IStatusEntry
+): Map<string, WorkingDirectoryFileChange> {
+  const selection = DiffSelection.fromInitialSelection(DiffSelectionType.None)
+  files.set(
+    entry.path,
+    new WorkingDirectoryFileChange(entry.path, createLfsAppStatus(), selection, entry.isDownloaded ?? false)
+  )
+  return files
 }
 
 /**
@@ -334,7 +384,7 @@ function buildStatusMap(
 
   files.set(
     entry.path,
-    new WorkingDirectoryFileChange(entry.path, appStatus, selection)
+    new WorkingDirectoryFileChange(entry.path, appStatus, selection, entry.isDownloaded ?? false)
   )
   return files
 }

@@ -35,7 +35,7 @@ export class CommittedFileItem extends React.Component<ICommittedFileItemProps> 
         />
 
         <Octicon
-          symbol={iconForStatus(status)}
+          symbol={iconForStatus(status, false)}
           className={'status status-' + fileStatus.toLowerCase()}
           title={fileStatus}
         />

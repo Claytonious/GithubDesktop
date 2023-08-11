@@ -15,6 +15,7 @@ interface IChangedFileProps {
   readonly availableWidth: number
   readonly disableSelection: boolean
   readonly checkboxTooltip?: string
+  readonly isLfs : boolean
   readonly onIncludeChanged: (path: string, include: boolean) => void
 }
 
@@ -36,10 +37,15 @@ export class ChangedFile extends React.Component<IChangedFileProps, {}> {
   }
 
   public render() {
-    const { file, availableWidth, disableSelection, checkboxTooltip } =
+    const { file, availableWidth, checkboxTooltip, isLfs } =
       this.props
     const { status, path } = file
-    const fileStatus = mapStatus(status)
+    let fileStatus = mapStatus(status)
+    if (isLfs) {
+      fileStatus = file.isDownloaded ? "downloaded" : "available"
+    }
+
+    const disableSelection = this.props.disableSelection || isLfs;
 
     const listItemPadding = 10 * 2
     const checkboxWidth = 20
@@ -92,7 +98,7 @@ export class ChangedFile extends React.Component<IChangedFileProps, {}> {
         <AriaLiveContainer message={pathScreenReaderMessage} />
 
         <Octicon
-          symbol={iconForStatus(status)}
+          symbol={iconForStatus(status, isLfs, file.isDownloaded)}
           className={'status status-' + fileStatus.toLowerCase()}
           title={fileStatus}
           tooltipDirection={TooltipDirection.EAST}

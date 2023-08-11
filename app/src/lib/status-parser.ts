@@ -27,6 +27,8 @@ export interface IStatusEntry {
 
   /** The original path in the case of a renamed file */
   readonly oldPath?: string
+
+  readonly isDownloaded?: boolean
 }
 
 export function isStatusHeader(
@@ -46,6 +48,27 @@ const RenamedOrCopiedEntryType = '2'
 const UnmergedEntryType = 'u'
 const UntrackedEntryType = '?'
 const IgnoredEntryType = '!'
+
+export function parseLfsFiles(
+  output: string
+): ReadonlyArray<StatusItem> {
+  const entries = new Array<StatusItem>()
+  const tokens = output.split('\n')
+  for (let i = 0; i < tokens.length; i++) {
+    const line = tokens[i]
+
+    if (line.includes(" * ")) {
+      const parts = line.split(" * ")
+      entries.push({kind:"entry", statusCode:"  ", path:parts[1], submoduleStatusCode: "    ", isDownloaded: true})
+    }
+
+    if (line.includes(" - ")) {
+      const parts = line.split(" - ")
+      entries.push({kind:"entry", statusCode:"  ", path:parts[1], submoduleStatusCode: "    ", isDownloaded: false})
+    }
+  }
+  return entries
+}
 
 /** Parses output from git status --porcelain -z into file status entries */
 export function parsePorcelainStatus(

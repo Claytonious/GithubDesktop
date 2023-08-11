@@ -306,6 +306,9 @@ function getInitialRepositoryState(): IRepositoryState {
       workingDirectory: WorkingDirectoryStatus.fromFiles(
         new Array<WorkingDirectoryFileChange>()
       ),
+      lfsDirectory: WorkingDirectoryStatus.fromFiles(
+        new Array<WorkingDirectoryFileChange>()
+      ),
       selection: {
         kind: ChangesSelectionKind.WorkingDirectory,
         selectedFileIDs: [],

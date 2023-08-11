@@ -73,7 +73,8 @@ describe('RepositoryStateCache', () => {
       new WorkingDirectoryFileChange(
         'README.md',
         { kind: AppFileStatusKind.New },
-        DiffSelection.fromInitialSelection(DiffSelectionType.All)
+        DiffSelection.fromInitialSelection(DiffSelectionType.All), 
+        false
       ),
     ]
 

@@ -59,6 +59,7 @@ interface IChangesSidebarProps {
   readonly accounts: ReadonlyArray<Account>
   readonly isShowingModal: boolean
   readonly isShowingFoldout: boolean
+  readonly isLfs: boolean
   /** The name of the currently selected external editor */
   readonly externalEditorLabel?: string
 
@@ -365,6 +366,7 @@ export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
   public render() {
     const {
       workingDirectory,
+      lfsDirectory,
       commitMessage,
       showCoAuthoredBy,
       coAuthors,
@@ -373,6 +375,9 @@ export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
       currentBranchProtected,
       currentRepoRulesInfo,
     } = this.props.changes
+
+    const isLfs = this.props.isLfs;
+
     let rebaseConflictState: RebaseConflictState | null = null
     if (conflictState !== null) {
       rebaseConflictState = isRebaseConflictState(conflictState)
@@ -399,6 +404,8 @@ export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
           repository={this.props.repository}
           repositoryAccount={repositoryAccount}
           workingDirectory={workingDirectory}
+          lfsDirectory={lfsDirectory}
+          isLfs={isLfs}
           conflictState={conflictState}
           mostRecentLocalCommit={this.props.mostRecentLocalCommit}
           rebaseConflictState={rebaseConflictState}

@@ -191,7 +191,7 @@ export class RepositoryView extends React.Component<
           <span>History</span>
         </div>
         <div className="with-indicator" id="lfs-tab">
-          <span>Large Files</span>
+          <span>Blobs</span>
         </div>
       </TabBar>
     )
@@ -229,6 +229,7 @@ export class RepositoryView extends React.Component<
       <ChangesSidebar
         ref={this.changesSidebarRef}
         repository={this.props.repository}
+        isLfs={false}
         dispatcher={this.props.dispatcher}
         changes={this.props.state.changesState}
         aheadBehind={this.props.state.aheadBehind}
@@ -349,6 +350,7 @@ export class RepositoryView extends React.Component<
         ref={this.changesSidebarRef}
         repository={this.props.repository}
         dispatcher={this.props.dispatcher}
+        isLfs={true}
         changes={this.props.state.changesState}
         aheadBehind={this.props.state.aheadBehind}
         branch={branchName}
@@ -608,7 +610,7 @@ export class RepositoryView extends React.Component<
 
   private renderContentForLsf(): JSX.Element | null {
     const { changesState } = this.props.state
-    const { workingDirectory, selection } = changesState
+    const { lfsDirectory, selection } = changesState
 
     if (selection.kind === ChangesSelectionKind.Stash) {
       return this.renderStashedChangesContent()
@@ -620,32 +622,28 @@ export class RepositoryView extends React.Component<
       return <MultipleSelection count={selectedFileIDs.length} />
     }
 
-    if (workingDirectory.files.length === 0) {
-      if (this.props.currentTutorialStep !== TutorialStep.NotApplicable) {
-        return this.renderTutorialPane()
-      } else {
-        return (
-          <NoChanges
-            key={this.props.repository.id}
-            appMenu={this.props.appMenu}
-            repository={this.props.repository}
-            repositoryState={this.props.state}
-            isExternalEditorAvailable={
-              this.props.externalEditorLabel !== undefined
-            }
-            dispatcher={this.props.dispatcher}
-            pullRequestSuggestedNextAction={
-              this.props.pullRequestSuggestedNextAction
-            }
-          />
-        )
-      }
+    if (lfsDirectory.files.length === 0) {
+      return (
+        <NoChanges
+          key={this.props.repository.id}
+          appMenu={this.props.appMenu}
+          repository={this.props.repository}
+          repositoryState={this.props.state}
+          isExternalEditorAvailable={
+            this.props.externalEditorLabel !== undefined
+          }
+          dispatcher={this.props.dispatcher}
+          pullRequestSuggestedNextAction={
+            this.props.pullRequestSuggestedNextAction
+          }
+        />
+      )
     } else {
       if (selectedFileIDs.length === 0) {
         return null
       }
 
-      const selectedFile = workingDirectory.findFileWithID(selectedFileIDs[0])
+      const selectedFile = lfsDirectory.findFileWithID(selectedFileIDs[0])
 
       if (selectedFile === null) {
         return null

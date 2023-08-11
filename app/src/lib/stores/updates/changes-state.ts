@@ -26,6 +26,7 @@ import { assertNever } from '../../fatal-error'
  */
 type ChangedFilesResult = {
   readonly workingDirectory: WorkingDirectoryStatus
+  readonly lfsDirectory: WorkingDirectoryStatus
   readonly selection: ChangesSelection
 }
 
@@ -37,6 +38,11 @@ export function updateChangedFiles(
   // Populate a map for all files in the current working directory state
   const filesByID = new Map<string, WorkingDirectoryFileChange>()
   state.workingDirectory.files.forEach(f => filesByID.set(f.id, f))
+  let lfsDirectory = status.lfsDirectory ? WorkingDirectoryStatus.fromFiles(status.lfsDirectory.files) : undefined;
+
+  if (!lfsDirectory) {
+    lfsDirectory = WorkingDirectoryStatus.fromFiles([])
+  }
 
   // Attempt to preserve the selection state for each file in the new
   // working directory state by looking at the current files
@@ -96,6 +102,7 @@ export function updateChangedFiles(
 
     return {
       workingDirectory,
+      lfsDirectory,
       selection: {
         kind: ChangesSelectionKind.WorkingDirectory,
         selectedFileIDs,
@@ -105,6 +112,7 @@ export function updateChangedFiles(
   } else if (state.selection.kind === ChangesSelectionKind.Stash) {
     return {
       workingDirectory,
+      lfsDirectory,
       selection: state.selection,
     }
   } else {

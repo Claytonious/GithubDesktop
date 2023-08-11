@@ -2812,8 +2812,7 @@ export class App extends React.Component<IAppProps, IAppState> {
     if (repository === undefined || !(repository instanceof Repository)) {
       return
     }
-    const fullPath = Path.join(repository.path, path)
-    this.props.dispatcher.downloadLfsFile(repository, fullPath)
+    this.props.dispatcher.downloadLfsFile(repository, path)
   }
 
   private showRepository = (repository: Repository | CloningRepository) => {

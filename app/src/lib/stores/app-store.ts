@@ -5400,9 +5400,9 @@ export class AppStore extends TypedBaseStore<IAppState> {
     }
   }
 
-  public async _downloadLfsFile(repository: Repository, fullPath: string): Promise<void> {
+  public async _downloadLfsFile(repository: Repository, path: string): Promise<void> {
     try {
-      await downloadLfsFile(repository, fullPath)
+      await downloadLfsFile(repository, path)
     } catch (error) {
       this.emitError(error)
     }

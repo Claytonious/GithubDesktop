@@ -120,7 +120,9 @@ interface IChangesListProps {
   readonly repository: Repository
   readonly repositoryAccount: Account | null
   readonly workingDirectory: WorkingDirectoryStatus
+  readonly lfsDirectory: WorkingDirectoryStatus
   readonly mostRecentLocalCommit: Commit | null
+  readonly isLfs: boolean
   /**
    * An object containing the conflicts in the working directory.
    * When null it means that there are no conflicts.
@@ -280,13 +282,15 @@ export class ChangesList extends React.Component<
   private renderRow = (row: number): JSX.Element => {
     const {
       workingDirectory,
+      lfsDirectory,
+      isLfs,
       rebaseConflictState,
       isCommitting,
       onIncludeChanged,
       availableWidth,
     } = this.props
 
-    const file = workingDirectory.files[row]
+    const file = isLfs ? lfsDirectory.files[row] : workingDirectory.files[row]
     const selection = file.selection.getSelectionType()
     const { submoduleStatus } = file.status
 
@@ -328,6 +332,7 @@ export class ChangesList extends React.Component<
         file={file}
         include={isPartiallyCommittableSubmodule && include ? null : include}
         key={file.id}
+        isLfs={isLfs}
         onIncludeChanged={onIncludeChanged}
         availableWidth={availableWidth}
         disableSelection={disableSelection}
@@ -530,21 +535,24 @@ export class ChangesList extends React.Component<
   }
 
   private getDefaultContextMenu(
-    file: WorkingDirectoryFileChange
+    file: WorkingDirectoryFileChange,
+    isLfs: boolean
   ): ReadonlyArray<IMenuItem> {
     const { id, path, status } = file
 
     const extension = Path.extname(path)
     const isSafeExtension = isSafeFileExtension(extension)
 
-    const { workingDirectory, selectedFileIDs } = this.props
+    const { workingDirectory, lfsDirectory, selectedFileIDs } = this.props
+
+    const directory = isLfs ? lfsDirectory : workingDirectory;
 
     const selectedFiles = new Array<WorkingDirectoryFileChange>()
     const paths = new Array<string>()
     const extensions = new Set<string>()
 
     const addItemToArray = (fileID: string) => {
-      const newFile = workingDirectory.findFileWithID(fileID)
+      const newFile = directory.findFileWithID(fileID)
       if (newFile) {
         selectedFiles.push(newFile)
         paths.push(newFile.path)
@@ -654,16 +662,13 @@ export class ChangesList extends React.Component<
       }
     )
 
-    const downloadEnabled = status.kind !== AppFileStatusKind.Deleted
-    items.push(
-      { type: 'separator' },
-      this.getDownloadLfsFileMenuItem(file, downloadEnabled),
-      {
-        label: DownloadLfsFileLabel,
-        action: () => this.props.onDownloadLfsFile(path),
-        enabled: enabled && isSafeExtension,
-      }
-    )
+    if (isLfs) {
+      const downloadEnabled = !file.isDownloaded
+      items.push(
+        { type: 'separator' },
+        this.getDownloadLfsFileMenuItem(file, downloadEnabled)
+      )
+    }
 
     return items
   }
@@ -706,8 +711,8 @@ export class ChangesList extends React.Component<
     row: number,
     event: React.MouseEvent<HTMLDivElement>
   ) => {
-    const { workingDirectory } = this.props
-    const file = workingDirectory.files[row]
+    const { workingDirectory, lfsDirectory, isLfs } = this.props
+    const file = isLfs ? lfsDirectory.files[row] : workingDirectory.files[row]
 
     if (this.props.isCommitting) {
       return
@@ -717,7 +722,7 @@ export class ChangesList extends React.Component<
 
     const items =
       this.props.rebaseConflictState === null
-        ? this.getDefaultContextMenu(file)
+        ? this.getDefaultContextMenu(file, isLfs)
         : this.getRebaseContextMenu(file)
 
     showContextualMenu(items)
@@ -963,8 +968,8 @@ export class ChangesList extends React.Component<
   }
 
   public render() {
-    const { workingDirectory, rebaseConflictState, isCommitting } = this.props
-    const { files } = workingDirectory
+    const { workingDirectory, lfsDirectory, isLfs, rebaseConflictState, isCommitting } = this.props
+    const { files } = isLfs ? lfsDirectory : workingDirectory
 
     const filesPlural = files.length === 1 ? 'file' : 'files'
     const filesDescription = `${files.length} changed ${filesPlural}`

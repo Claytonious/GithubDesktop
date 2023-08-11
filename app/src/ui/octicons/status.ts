@@ -13,7 +13,10 @@ import { assertNever } from '../../lib/fatal-error'
  *
  * Used in file lists.
  */
-export function iconForStatus(status: AppFileStatus): OcticonSymbolType {
+export function iconForStatus(status: AppFileStatus, isLfs: boolean, isDownloaded: boolean = false): OcticonSymbolType {
+  if (isLfs) {
+    return isDownloaded ? OcticonSymbol.dotFill : OcticonSymbol.dot;
+  }
   switch (status.kind) {
     case AppFileStatusKind.New:
     case AppFileStatusKind.Untracked:

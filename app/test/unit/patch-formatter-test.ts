@@ -24,7 +24,7 @@ async function parseDiff(diff: string): Promise<ITextDiff> {
   const repository = new Repository('', -1, null, false)
   const fileChange = new FileChange('file.txt', {
     kind: AppFileStatusKind.Modified,
-  })
+  }, false)
   const output = await convertDiff(repository, fileChange, rawDiff, 'HEAD')
   expect(output.kind === DiffType.Text)
   return output as ITextDiff
@@ -48,7 +48,8 @@ describe('patch formatting', () => {
       const file = new WorkingDirectoryFileChange(
         modifiedFile,
         { kind: AppFileStatusKind.Modified },
-        unselectedFile
+        unselectedFile,
+        false
       )
 
       const diff = await getWorkingDirectoryDiff(repository, file)
@@ -69,7 +70,8 @@ describe('patch formatting', () => {
       const updatedFile = new WorkingDirectoryFileChange(
         modifiedFile,
         { kind: AppFileStatusKind.Modified },
-        selection
+        selection,
+        false
       )
 
       const patch = formatPatch(updatedFile, textDiff)
@@ -87,7 +89,8 @@ describe('patch formatting', () => {
       const file = new WorkingDirectoryFileChange(
         modifiedFile,
         { kind: AppFileStatusKind.Modified },
-        unselectedFile
+        unselectedFile,
+        false
       )
 
       const diff = await getWorkingDirectoryDiff(repository, file)
@@ -108,7 +111,8 @@ describe('patch formatting', () => {
       const updatedFile = new WorkingDirectoryFileChange(
         modifiedFile,
         { kind: AppFileStatusKind.Modified },
-        selection
+        selection,
+        false
       )
 
       const patch = formatPatch(updatedFile, textDiff)
@@ -127,7 +131,8 @@ describe('patch formatting', () => {
       const file = new WorkingDirectoryFileChange(
         modifiedFile,
         { kind: AppFileStatusKind.Modified },
-        unselectedFile
+        unselectedFile,
+        false
       )
 
       const diff = await getWorkingDirectoryDiff(repository, file)
@@ -147,7 +152,8 @@ describe('patch formatting', () => {
       const updatedFile = new WorkingDirectoryFileChange(
         modifiedFile,
         { kind: AppFileStatusKind.Modified },
-        selection
+        selection,
+        false
       )
 
       const patch = formatPatch(updatedFile, textDiff)
@@ -167,7 +173,8 @@ describe('patch formatting', () => {
       const file = new WorkingDirectoryFileChange(
         modifiedFile,
         { kind: AppFileStatusKind.Modified },
-        unselectedFile
+        unselectedFile,
+        false
       )
 
       const diff = await getWorkingDirectoryDiff(repository, file)
@@ -190,7 +197,8 @@ describe('patch formatting', () => {
       const updatedFile = new WorkingDirectoryFileChange(
         modifiedFile,
         { kind: AppFileStatusKind.Modified },
-        selection
+        selection,
+        false
       )
 
       const patch = formatPatch(updatedFile, textDiff)
@@ -256,7 +264,8 @@ describe('patch formatting', () => {
       const file = new WorkingDirectoryFileChange(
         'file.md',
         { kind: AppFileStatusKind.Modified },
-        selection
+        selection,
+        false
       )
       const patch = formatPatch(file, diff)
 
@@ -287,7 +296,8 @@ describe('patch formatting', () => {
       const file = new WorkingDirectoryFileChange(
         'file.md',
         { kind: AppFileStatusKind.New },
-        selection
+        selection,
+        false
       )
       const patch = formatPatch(file, diff)
 
@@ -313,7 +323,8 @@ describe('patch formatting', () => {
       const file = new WorkingDirectoryFileChange(
         'file.md',
         { kind: AppFileStatusKind.Modified },
-        selection
+        selection,
+        false
       )
       const patch = formatPatch(file, diff)
 
@@ -346,7 +357,8 @@ describe('patch formatting', () => {
       const file = new WorkingDirectoryFileChange(
         'file.md',
         { kind: AppFileStatusKind.Modified },
-        selection
+        selection,
+        false
       )
 
       const patch = formatPatch(file, diff)

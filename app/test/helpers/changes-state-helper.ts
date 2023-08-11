@@ -10,6 +10,7 @@ export function createState<K extends keyof IChangesState>(
 ): IChangesState {
   const baseChangesState: IChangesState = {
     workingDirectory: WorkingDirectoryStatus.fromFiles([]),
+    lfsDirectory: WorkingDirectoryStatus.fromFiles([]),
     selection: {
       kind: ChangesSelectionKind.WorkingDirectory,
       selectedFileIDs: [],
@@ -37,6 +38,7 @@ export function createStatus<K extends keyof IStatusResult>(
     rebaseInternalState: null,
     isCherryPickingHeadFound: false,
     workingDirectory: WorkingDirectoryStatus.fromFiles([]),
+    lfsDirectory: WorkingDirectoryStatus.fromFiles([]),
     doConflictedFilesExist: false,
   }
 
