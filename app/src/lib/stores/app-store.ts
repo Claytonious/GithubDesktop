@@ -236,6 +236,7 @@ import {
   updateChangedFiles,
   updateConflictState,
   selectWorkingDirectoryFiles,
+  selectLfsDirectoryFiles
 } from './updates/changes-state'
 import { ManualConflictResolution } from '../../models/manual-conflict-resolution'
 import { BranchPruner } from './helpers/branch-pruner'
@@ -2775,6 +2776,19 @@ export class AppStore extends TypedBaseStore<IAppState> {
     this.updateChangesWorkingDirectoryDiff(repository)
   }
 
+  public async _selectLfsDirectoryFiles(
+    repository: Repository,
+    files?: ReadonlyArray<WorkingDirectoryFileChange>
+  ): Promise<void> {
+    this.repositoryStateCache.updateChangesState(repository, state =>
+      selectLfsDirectoryFiles(state, files)
+    )
+
+    this.updateMenuLabelsForSelectedRepository()
+    this.emitUpdate()
+    this.updateLfsSelection(repository)
+  }
+
   /**
    * Loads or re-loads (refreshes) the diff for the currently selected file
    * in the working directory. This operation is a noop if there's no currently
@@ -2891,6 +2905,32 @@ export class AppStore extends TypedBaseStore<IAppState> {
     this.emitUpdate()
   }
 
+  private async updateLfsSelection(
+    repository: Repository
+  ): Promise<void> {
+
+    const state = this.repositoryStateCache.get(repository)
+    const changesState = state.changesState
+
+    if (changesState.selection.kind !== ChangesSelectionKind.WorkingDirectory) {
+      return
+    }
+
+    const selectedFileIDs = changesState.selection.selectedFileIDs
+
+    const selection: ChangesWorkingDirectorySelection = {
+      kind: ChangesSelectionKind.WorkingDirectory,
+      selectedFileIDs: selectedFileIDs,
+      diff: null
+    }
+    const lfsDirectory = WorkingDirectoryStatus.fromFiles(this.repositoryStateCache.get(repository).changesState.lfsDirectory.files)
+    this.repositoryStateCache.updateChangesState(repository, () => ({
+      selection,
+      lfsDirectory,
+    }))
+    this.emitUpdate()
+  }
+
   public _hideStashedChanges(repository: Repository) {
     const { changesState } = this.repositoryStateCache.get(repository)
 
@@ -2917,6 +2957,10 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
     this.updateMenuLabelsForSelectedRepository()
   }
+
+
+
+  
 
   /**
    * Changes the selection in the changes view to the stash entry view and

@@ -179,11 +179,21 @@ export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
   }
 
   private onFileSelectionChanged = (rows: ReadonlyArray<number>) => {
-    const files = rows.map(i => this.props.changes.workingDirectory.files[i])
-    this.props.dispatcher.selectWorkingDirectoryFiles(
-      this.props.repository,
-      files
-    )
+    const dir = this.props.isLfs ? this.props.changes.lfsDirectory : this.props.changes.workingDirectory;
+    const files = rows.map(i => dir.files[i])
+
+    if (this.props.isLfs) {
+      this.props.dispatcher.selectLfsDirectoryFiles(
+        this.props.repository,
+        files
+      )  
+    }
+    else {
+      this.props.dispatcher.selectWorkingDirectoryFiles(
+        this.props.repository,
+        files
+      )  
+    }
   }
 
   private onIncludeChanged = (path: string, include: boolean) => {

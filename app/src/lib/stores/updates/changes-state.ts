@@ -359,3 +359,36 @@ export function selectWorkingDirectoryFiles(
     },
   }
 }
+
+export function selectLfsDirectoryFiles(
+  state: IChangesState,
+  files?: ReadonlyArray<WorkingDirectoryFileChange>
+): Pick<IChangesState, 'selection'> {
+  let selectedFileIDs: Array<string>
+
+  if (files === undefined) {
+    if (state.selection.kind === ChangesSelectionKind.WorkingDirectory) {
+      // No files provided, just a desire to make sure selection is
+      // working directory. If it already is there's nothing for us to do.
+      return { selection: state.selection }
+    } else if (state.lfsDirectory.files.length > 0) {
+      // No files provided and the current selection is stash, pick the
+      // first file we've got.
+      selectedFileIDs = [state.workingDirectory.files[0].id]
+    } else {
+      // Not much to do here. No files provided, nothing in the
+      // working directory.
+      selectedFileIDs = new Array<string>()
+    }
+  } else {
+    selectedFileIDs = files.map(x => x.id)
+  }
+
+  return {
+    selection: {
+      kind: ChangesSelectionKind.WorkingDirectory as ChangesSelectionKind.WorkingDirectory,
+      selectedFileIDs,
+      diff: null,
+    },
+  }
+}

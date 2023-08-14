@@ -235,9 +235,10 @@ function getSelectedRowsFromProps(
 ): ReadonlyArray<number> {
   const selectedFileIDs = props.selectedFileIDs
   const selectedRows = []
+  const dir = props.isLfs ? props.lfsDirectory : props.workingDirectory;
 
   for (const id of selectedFileIDs) {
-    const ix = props.workingDirectory.findFileIndexByID(id)
+    const ix = dir.findFileIndexByID(id)
     if (ix !== -1) {
       selectedRows.push(ix)
     }

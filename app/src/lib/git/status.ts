@@ -323,7 +323,7 @@ function buildLfsMap(
   files: Map<string, WorkingDirectoryFileChange>,
   entry: IStatusEntry
 ): Map<string, WorkingDirectoryFileChange> {
-  const selection = DiffSelection.fromInitialSelection(DiffSelectionType.None)
+  const selection = DiffSelection.fromInitialSelection(DiffSelectionType.All)
   files.set(
     entry.path,
     new WorkingDirectoryFileChange(entry.path, createLfsAppStatus(), selection, entry.isDownloaded ?? false)

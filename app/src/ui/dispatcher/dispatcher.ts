@@ -302,6 +302,13 @@ export class Dispatcher {
     return this.appStore._selectWorkingDirectoryFiles(repository, selectedFiles)
   }
 
+  public selectLfsDirectoryFiles(
+    repository: Repository,
+    selectedFiles?: WorkingDirectoryFileChange[]
+  ): Promise<void> {
+    return this.appStore._selectLfsDirectoryFiles(repository, selectedFiles)
+  }
+
   /**
    * Changes the selection in the changes view to the stash entry view and
    * optionally selects a particular file from the current stash entry.
