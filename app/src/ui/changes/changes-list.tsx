@@ -575,80 +575,91 @@ export class ChangesList extends React.Component<
       addItemToArray(id)
     }
 
-    const items: IMenuItem[] = [
-      this.getDiscardChangesMenuItem(paths),
-      { type: 'separator' },
-    ]
-    if (paths.length === 1) {
-      items.push({
-        label: __DARWIN__
-          ? 'Ignore File (Add to .gitignore)'
-          : 'Ignore file (add to .gitignore)',
-        action: () => this.props.onIgnoreFile(path),
-        enabled: Path.basename(path) !== GitIgnoreFileName,
-      })
-    } else if (paths.length > 1) {
-      items.push({
-        label: __DARWIN__
-          ? `Ignore ${paths.length} Selected Files (Add to .gitignore)`
-          : `Ignore ${paths.length} selected files (add to .gitignore)`,
-        action: () => {
-          // Filter out any .gitignores that happens to be selected, ignoring
-          // those doesn't make sense.
-          this.props.onIgnoreFile(
-            paths.filter(path => Path.basename(path) !== GitIgnoreFileName)
-          )
-        },
-        // Enable this action as long as there's something selected which isn't
-        // a .gitignore file.
-        enabled: paths.some(path => Path.basename(path) !== GitIgnoreFileName),
-      })
-    }
-    // Five menu items should be enough for everyone
-    Array.from(extensions)
-      .slice(0, 5)
-      .forEach(extension => {
+    const items: IMenuItem[] = [];
+
+    if (!isLfs) {
+      items.push(
+        this.getDiscardChangesMenuItem(paths),
+        { type: 'separator' },
+      )
+      if (paths.length === 1) {
         items.push({
           label: __DARWIN__
-            ? `Ignore All ${extension} Files (Add to .gitignore)`
-            : `Ignore all ${extension} files (add to .gitignore)`,
-          action: () => this.props.onIgnorePattern(`*${extension}`),
+            ? 'Ignore File (Add to .gitignore)'
+            : 'Ignore file (add to .gitignore)',
+          action: () => this.props.onIgnoreFile(path),
+          enabled: Path.basename(path) !== GitIgnoreFileName,
         })
+      } else if (paths.length > 1) {
+        items.push({
+          label: __DARWIN__
+            ? `Ignore ${paths.length} Selected Files (Add to .gitignore)`
+            : `Ignore ${paths.length} selected files (add to .gitignore)`,
+          action: () => {
+            // Filter out any .gitignores that happens to be selected, ignoring
+            // those doesn't make sense.
+            this.props.onIgnoreFile(
+              paths.filter(path => Path.basename(path) !== GitIgnoreFileName)
+            )
+          },
+          // Enable this action as long as there's something selected which isn't
+          // a .gitignore file.
+          enabled: paths.some(path => Path.basename(path) !== GitIgnoreFileName),
+        })
+      }
+    // Five menu items should be enough for everyone
+      Array.from(extensions)
+        .slice(0, 5)
+        .forEach(extension => {
+          items.push({
+            label: __DARWIN__
+              ? `Ignore All ${extension} Files (Add to .gitignore)`
+              : `Ignore all ${extension} files (add to .gitignore)`,
+            action: () => this.props.onIgnorePattern(`*${extension}`),
+          })
       })
-
-    if (paths.length > 1) {
+    }
+    if (isLfs) {
       items.push(
-        { type: 'separator' },
-        {
-          label: __DARWIN__
-            ? 'Include Selected Files'
-            : 'Include selected files',
-          action: () => {
-            selectedFiles.map(file =>
-              this.props.onIncludeChanged(file.path, true)
-            )
-          },
-        },
-        {
-          label: __DARWIN__
-            ? 'Exclude Selected Files'
-            : 'Exclude selected files',
-          action: () => {
-            selectedFiles.map(file =>
-              this.props.onIncludeChanged(file.path, false)
-            )
-          },
-        },
-        { type: 'separator' },
-        this.getCopySelectedPathsMenuItem(selectedFiles),
-        this.getCopySelectedRelativePathsMenuItem(selectedFiles)
-      )
-    } else {
-      items.push(
-        { type: 'separator' },
         this.getCopyPathMenuItem(file),
         this.getCopyRelativePathMenuItem(file)
       )
+    }
+    else {
+      if (paths.length > 1) {
+        items.push(
+          { type: 'separator' },
+          {
+            label: __DARWIN__
+              ? 'Include Selected Files'
+              : 'Include selected files',
+            action: () => {
+              selectedFiles.map(file =>
+                this.props.onIncludeChanged(file.path, true)
+              )
+            },
+          },
+          {
+            label: __DARWIN__
+              ? 'Exclude Selected Files'
+              : 'Exclude selected files',
+            action: () => {
+              selectedFiles.map(file =>
+                this.props.onIncludeChanged(file.path, false)
+              )
+            },
+          },
+          { type: 'separator' },
+          this.getCopySelectedPathsMenuItem(selectedFiles),
+          this.getCopySelectedRelativePathsMenuItem(selectedFiles)
+        )
+      } else {
+        items.push(
+          { type: 'separator' },
+          this.getCopyPathMenuItem(file),
+          this.getCopyRelativePathMenuItem(file)
+        )
+      }
     }
 
     const enabled = status.kind !== AppFileStatusKind.Deleted
