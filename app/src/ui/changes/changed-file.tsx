@@ -41,8 +41,20 @@ export class ChangedFile extends React.Component<IChangedFileProps, {}> {
       this.props
     const { status, path } = file
     let fileStatus = mapStatus(status)
+    let tooltipText = fileStatus;
     if (isLfs) {
-      fileStatus = file.isDownloaded ? "downloaded" : "available"
+      tooltipText = file.isDownloaded ? "Downloaded" : "Not on Disk"
+      if (file.isLockedByMe) {
+        fileStatus = "LockedByMe"
+        tooltipText += ` : Locked by me since ${file.lockedAt.toLocaleString()}`
+      }
+      else if (file.lockedByOther) {
+        fileStatus = "LockedByOther"
+        tooltipText += ` : Locked by ${file.lockedByOther} since ${file.lockedAt.toLocaleString()}`
+      }
+      else {
+        fileStatus = "NotLocked"
+      }
     }
 
     const disableSelection = this.props.disableSelection || isLfs;
@@ -98,9 +110,9 @@ export class ChangedFile extends React.Component<IChangedFileProps, {}> {
         <AriaLiveContainer message={pathScreenReaderMessage} />
 
         <Octicon
-          symbol={iconForStatus(status, isLfs, file.isDownloaded)}
+          symbol={iconForStatus(status, isLfs, file)}
           className={'status status-' + fileStatus.toLowerCase()}
-          title={fileStatus}
+          title={tooltipText}
           tooltipDirection={TooltipDirection.EAST}
         />
       </div>

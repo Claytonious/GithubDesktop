@@ -2,6 +2,7 @@ import {
   AppFileStatusKind,
   AppFileStatus,
   isConflictWithMarkers,
+  WorkingDirectoryFileChange,
 } from '../../models/status'
 import * as OcticonSymbol from './octicons.generated'
 import { OcticonSymbolType } from '../octicons'
@@ -13,9 +14,18 @@ import { assertNever } from '../../lib/fatal-error'
  *
  * Used in file lists.
  */
-export function iconForStatus(status: AppFileStatus, isLfs: boolean, isDownloaded: boolean = false): OcticonSymbolType {
+export function iconForStatus(status: AppFileStatus, isLfs: boolean, file?: WorkingDirectoryFileChange): OcticonSymbolType {
   if (isLfs) {
-    return isDownloaded ? OcticonSymbol.dotFill : OcticonSymbol.dot;
+
+    if (file?.isLockedByMe) {
+      return file.isDownloaded ? OcticonSymbol.lockNonZero : OcticonSymbol.lock;
+    }
+
+    if (file?.lockedByOther) {
+      return file.isDownloaded ? OcticonSymbol.lockNonZero : OcticonSymbol.lock;
+    }
+    
+    return file?.isDownloaded ? OcticonSymbol.dotFill : OcticonSymbol.dot;
   }
   switch (status.kind) {
     case AppFileStatusKind.New:

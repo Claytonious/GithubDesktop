@@ -21,6 +21,15 @@
     &-resolved {
       fill: var(--color-new);
     }
+    &-lockedbyme {
+      fill: var(--color-new);
+    }
+    &-lockedbyother {
+      fill: var(--color-deleted);
+    }
+    &-notlocked {
+      fill: var(--color-renamed);
+    }
   }
 
   .line-endings {

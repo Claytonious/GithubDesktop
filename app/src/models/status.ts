@@ -23,7 +23,7 @@ export enum AppFileStatusKind {
   Copied = 'Copied',
   Renamed = 'Renamed',
   Conflicted = 'Conflicted',
-  Untracked = 'Untracked',
+  Untracked = 'Untracked'
 }
 
 /**
