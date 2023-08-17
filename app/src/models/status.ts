@@ -275,6 +275,11 @@ export class FileChange {
 
 /** encapsulate the changes to a file in the working directory */
 export class WorkingDirectoryFileChange extends FileChange {
+
+  public isLockedByMe: boolean = false
+  public lockedByOther: string = ""
+  public lockedAt: Date = new Date()
+
   /**
    * @param path The relative path to the file in the repository.
    * @param status The status of the change to the file.
@@ -285,7 +290,7 @@ export class WorkingDirectoryFileChange extends FileChange {
     path: string,
     status: AppFileStatus,
     public readonly selection: DiffSelection,
-    isDownloaded: boolean = false,
+    isDownloaded: boolean = false
   ) {
     super(path, status, isDownloaded)
   }

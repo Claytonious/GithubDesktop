@@ -249,7 +249,19 @@ export async function getStatus(
     log.error(`git lfs locks returned error ${lfsLocksResult.exitCode}`)
   }
   else {
-    //const locksSet = parseLfsLocks(lfsLocksResult.output.toString('utf8'))
+    const locksSet = parseLfsLocks(lfsLocksResult.output.toString('utf8'))
+    lfsFiles.forEach(file => {
+      const ourLock = locksSet.ours.find(l => l.path === file.path)
+      if (ourLock != null) {
+        file.isLockedByMe = true;
+        file.lockedAt = ourLock.locked_at
+      }
+      const theirsLock = locksSet.theirs.find(l => l.path === file.path)
+      if (theirsLock != null) {
+        file.lockedByOther = theirsLock.ownerName;
+        file.lockedAt = theirsLock.locked_at
+      }
+    })
   }
 
   const args = [
