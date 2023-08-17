@@ -2815,6 +2815,22 @@ export class App extends React.Component<IAppProps, IAppState> {
     this.props.dispatcher.downloadLfsFile(repository, path)
   }
 
+  private onLockLfsFile = (path: string) => {
+    const repository = this.state.selectedState?.repository
+    if (repository === undefined || !(repository instanceof Repository)) {
+      return
+    }
+    this.props.dispatcher.lockLfsFile(repository, path)
+  }
+
+  private onUnlockLfsFile = (path: string) => {
+    const repository = this.state.selectedState?.repository
+    if (repository === undefined || !(repository instanceof Repository)) {
+      return
+    }
+    this.props.dispatcher.unlockLfsFile(repository, path)
+  }
+
   private showRepository = (repository: Repository | CloningRepository) => {
     if (!(repository instanceof Repository)) {
       return
@@ -3269,6 +3285,8 @@ export class App extends React.Component<IAppProps, IAppState> {
           resolvedExternalEditor={state.resolvedExternalEditor}
           onOpenInExternalEditor={this.onOpenInExternalEditor}
           onDownloadLfsFile={this.onDownloadLfsFile}
+          onLockLfsFile={this.onLockLfsFile}
+          onUnlockLfsFile={this.onUnlockLfsFile}
           appMenu={state.appMenuState[0]}
           currentTutorialStep={state.currentOnboardingTutorialStep}
           onExitTutorial={this.onExitTutorial}

@@ -81,6 +81,8 @@ interface IRepositoryViewProps {
    */
   readonly onOpenInExternalEditor: (fullPath: string) => void
   readonly onDownloadLfsFile: (fullPath: string) => void
+  readonly onLockLfsFile: (fullPath: string) => void
+  readonly onUnlockLfsFile: (fullPath: string) => void
 
   /**
    * The top-level application menu item.
@@ -253,6 +255,8 @@ export class RepositoryView extends React.Component<
         externalEditorLabel={this.props.externalEditorLabel}
         onOpenInExternalEditor={this.props.onOpenInExternalEditor}
         onDownloadLfsFile={this.props.onDownloadLfsFile}
+        onLockLfsFile={this.props.onLockLfsFile}
+        onUnlockLfsFile={this.props.onUnlockLfsFile}
         onChangesListScrolled={this.onChangesListScrolled}
         changesListScrollTop={scrollTop}
         shouldNudgeToCommit={
@@ -373,6 +377,8 @@ export class RepositoryView extends React.Component<
         externalEditorLabel={this.props.externalEditorLabel}
         onOpenInExternalEditor={this.props.onOpenInExternalEditor}
         onDownloadLfsFile={this.props.onDownloadLfsFile}
+        onLockLfsFile={this.props.onLockLfsFile}
+        onUnlockLfsFile={this.props.onUnlockLfsFile}
         onChangesListScrolled={this.onChangesListScrolled}
         changesListScrollTop={scrollTop}
         shouldNudgeToCommit={

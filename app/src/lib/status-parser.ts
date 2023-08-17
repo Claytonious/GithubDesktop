@@ -70,6 +70,26 @@ export function parseLfsFiles(
   return entries
 }
 
+export class LfsLock {
+  public path:string = ""
+  public ownerName:string = ""
+  public locked_at:Date = new Date()
+}
+
+export class LfsLocksSet {
+  public ours:LfsLock[] = []
+  public theirs:LfsLock[] = []
+}
+
+export function parseLfsLocks(
+  output: string
+): LfsLocksSet {
+
+  const data = JSON.parse(output)
+  const lockSet = Object.assign(new LfsLocksSet(), data)
+  return lockSet
+}
+
 /** Parses output from git status --porcelain -z into file status entries */
 export function parsePorcelainStatus(
   output: string

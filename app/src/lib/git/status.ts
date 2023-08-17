@@ -18,7 +18,8 @@ import {
   IStatusHeader,
   isStatusHeader,
   isStatusEntry,
-  parseLfsFiles
+  parseLfsFiles,
+  parseLfsLocks
 } from '../status-parser'
 import { DiffSelectionType, DiffSelection } from '../../models/diff'
 import { Repository } from '../../models/repository'
@@ -205,14 +206,14 @@ export async function getStatus(
   repository: Repository
 ): Promise<IStatusResult | null> {
 
-  const lfsArgs = [
+  const lfsLsArgs = [
     'lfs',
     'ls-files',
     '-l'
   ]
   
   const lfsResult = await spawnAndComplete(
-    lfsArgs,
+    lfsLsArgs,
     repository.path,
     'lsLfs',
     new Set([0, 128])
@@ -229,6 +230,27 @@ export async function getStatus(
     new Map<string, WorkingDirectoryFileChange>()
   )
   const lfsDirectory = WorkingDirectoryStatus.fromFiles([...lfsFiles.values()])
+
+  const lfsLocksArgs = [
+    'lfs',
+    'locks',
+    '--verify',
+    '--json'
+  ]
+
+  const lfsLocksResult = await spawnAndComplete(
+    lfsLocksArgs,
+    repository.path,
+    'lsfLocks',
+    new Set([0, 128])
+  )
+
+  if (lfsLocksResult.exitCode !== 0) {
+    log.error(`git lfs locks returned error ${lfsLocksResult.exitCode}`)
+  }
+  else {
+    //const locksSet = parseLfsLocks(lfsLocksResult.output.toString('utf8'))
+  }
 
   const args = [
     '--no-optional-locks',

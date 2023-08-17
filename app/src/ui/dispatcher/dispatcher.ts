@@ -1407,6 +1407,14 @@ export class Dispatcher {
     return this.appStore._downloadLfsFile(repository, path)
   }
 
+  public async lockLfsFile(repository: Repository, path: string): Promise<void> {
+    return this.appStore._lockLfsFile(repository, path)
+  }
+
+  public async unlockLfsFile(repository: Repository, path: string): Promise<void> {
+    return this.appStore._unlockLfsFile(repository, path)
+  }
+
   /**
    * Persist the given content to the repository's root .gitignore.
    *

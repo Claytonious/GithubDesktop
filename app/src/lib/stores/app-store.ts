@@ -187,7 +187,9 @@ import {
   installGlobalLFSFilters,
   installLFSHooks,
   isUsingLFS,
-  downloadLfsFile
+  downloadLfsFile,
+  lockLfsFile,
+  unlockLfsFile
 } from '../git/lfs'
 import { inferLastPushForRepository } from '../infer-last-push-for-repository'
 import { updateMenuState } from '../menu-update'
@@ -5447,6 +5449,24 @@ export class AppStore extends TypedBaseStore<IAppState> {
   public async _downloadLfsFile(repository: Repository, path: string): Promise<void> {
     try {
       await downloadLfsFile(repository, path)
+      return this._refreshRepository(repository)
+    } catch (error) {
+      this.emitError(error)
+    }
+  }
+
+  public async _lockLfsFile(repository: Repository, path: string): Promise<void> {
+    try {
+      await lockLfsFile(repository, path)
+      return this._refreshRepository(repository)
+    } catch (error) {
+      this.emitError(error)
+    }
+  }
+
+  public async _unlockLfsFile(repository: Repository, path: string): Promise<void> {
+    try {
+      await unlockLfsFile(repository, path)
       return this._refreshRepository(repository)
     } catch (error) {
       this.emitError(error)

@@ -33,6 +33,14 @@ export const DownloadLfsFileLabel = __DARWIN__
   ? 'Download File'
   : 'Download file'
 
+export const LockLfsFileLabel = __DARWIN__
+  ? 'Lock File'
+  : 'Lock file'
+
+export const UnlockLfsFileLabel = __DARWIN__
+  ? 'Unlock File'
+  : 'Unlock file'
+
 export function isSafeFileExtension(extension: string): boolean {
   if (__WIN32__) {
     return RestrictedFileExtensions.indexOf(extension.toLowerCase()) === -1

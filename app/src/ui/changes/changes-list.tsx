@@ -29,7 +29,9 @@ import {
   CopyRelativeFilePathLabel,
   CopySelectedPathsLabel,
   CopySelectedRelativePathsLabel,
-  DownloadLfsFileLabel
+  DownloadLfsFileLabel,
+  LockLfsFileLabel,
+  UnlockLfsFileLabel
 } from '../lib/context-menu'
 import { CommitMessage } from './commit-message'
 import { ChangedFile } from './changed-file'
@@ -165,6 +167,8 @@ interface IChangesListProps {
   readonly onOpenItemInExternalEditor: (path: string) => void
 
   readonly onDownloadLfsFile: (path: string) => void
+  readonly onLockLfsFile: (path: string) => void
+  readonly onUnlockLfsFile: (path: string) => void
 
   /**
    * The currently checked out branch (null if no branch is checked out).
@@ -535,6 +539,32 @@ export class ChangesList extends React.Component<
     }
   }
 
+  private getLockLfsFileMenuItem = (
+    file: WorkingDirectoryFileChange,
+    enabled: boolean
+  ): IMenuItem => {
+    return {
+      label: LockLfsFileLabel,
+      action: () => {
+        this.props.onLockLfsFile(file.path)
+      },
+      enabled
+    }
+  }
+
+  private getUnlockLfsFileMenuItem = (
+    file: WorkingDirectoryFileChange,
+    enabled: boolean
+  ): IMenuItem => {
+    return {
+      label: UnlockLfsFileLabel,
+      action: () => {
+        this.props.onUnlockLfsFile(file.path)
+      },
+      enabled
+    }
+  }
+
   private getDefaultContextMenu(
     file: WorkingDirectoryFileChange,
     isLfs: boolean
@@ -678,7 +708,9 @@ export class ChangesList extends React.Component<
       const downloadEnabled = !file.isDownloaded
       items.push(
         { type: 'separator' },
-        this.getDownloadLfsFileMenuItem(file, downloadEnabled)
+        this.getDownloadLfsFileMenuItem(file, downloadEnabled),
+        this.getLockLfsFileMenuItem(file, true),
+        this.getUnlockLfsFileMenuItem(file, true)
       )
     }
 
