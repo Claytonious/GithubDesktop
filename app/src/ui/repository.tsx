@@ -615,67 +615,7 @@ export class RepositoryView extends React.Component<
   }
 
   private renderContentForLsf(): JSX.Element | null {
-    const { changesState } = this.props.state
-    const { lfsDirectory, selection } = changesState
-
-    if (selection.kind === ChangesSelectionKind.Stash) {
-      return this.renderStashedChangesContent()
-    }
-
-    const { selectedFileIDs, diff } = selection
-
-    if (selectedFileIDs.length > 1) {
-      return <MultipleSelection count={selectedFileIDs.length} />
-    }
-
-    if (lfsDirectory.files.length === 0) {
-      return (
-        <NoChanges
-          key={this.props.repository.id}
-          appMenu={this.props.appMenu}
-          repository={this.props.repository}
-          repositoryState={this.props.state}
-          isExternalEditorAvailable={
-            this.props.externalEditorLabel !== undefined
-          }
-          dispatcher={this.props.dispatcher}
-          pullRequestSuggestedNextAction={
-            this.props.pullRequestSuggestedNextAction
-          }
-        />
-      )
-    } else {
-      if (selectedFileIDs.length === 0) {
-        return null
-      }
-
-      const selectedFile = lfsDirectory.findFileWithID(selectedFileIDs[0])
-
-      if (selectedFile === null) {
-        return null
-      }
-
-      return (
-        <Changes
-          repository={this.props.repository}
-          dispatcher={this.props.dispatcher}
-          file={selectedFile}
-          diff={diff}
-          isCommitting={this.props.state.isCommitting}
-          imageDiffType={this.props.imageDiffType}
-          hideWhitespaceInDiff={this.props.hideWhitespaceInChangesDiff}
-          showSideBySideDiff={this.props.showSideBySideDiff}
-          onOpenBinaryFile={this.onOpenBinaryFile}
-          onOpenSubmodule={this.onOpenSubmodule}
-          onChangeImageDiffType={this.onChangeImageDiffType}
-          askForConfirmationOnDiscardChanges={
-            this.props.askForConfirmationOnDiscardChanges
-          }
-          onDiffOptionsOpened={this.onDiffOptionsOpened}
-          onOpenInExternalEditor={this.props.onOpenInExternalEditor}
-        />
-      )
-    }
+    return null
   }
 
   private onOpenBinaryFile = (fullPath: string) => {

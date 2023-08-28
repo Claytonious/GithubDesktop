@@ -48,11 +48,11 @@ export class ChangedFile extends React.Component<IChangedFileProps, {}> {
       let sinceText = "";
       if (file.lockedAt) {
         sinceText = file.lockedAt.toLocaleString(Intl.DateTimeFormat().resolvedOptions().locale, {
-          weekday: 'short', // long, short, narrow
-          day: 'numeric', // numeric, 2-digit
-          year: 'numeric', // numeric, 2-digit
-          month: 'long', // numeric, 2-digit, long, short, narrow
-          hour: 'numeric', // numeric, 2-digit
+          weekday: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          month: 'long',
+          hour: 'numeric',
           minute: 'numeric'
         });
       }
