@@ -86,6 +86,16 @@ export function parseLfsLocks(
 ): LfsLocksSet {
 
   const data = JSON.parse(output)
+  if (data.ours) {
+    data.ours.forEach((lock: { locked_at: string | number | Date }) => {
+      lock.locked_at = new Date(lock.locked_at)
+    });
+  }
+  if (data.theirs) {
+    data.theirs.forEach((lock: { locked_at: string | number | Date }) => {
+      lock.locked_at = new Date(lock.locked_at)
+    });
+  }
   const lockSet = Object.assign(new LfsLocksSet(), data)
   return lockSet
 }
