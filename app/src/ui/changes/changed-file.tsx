@@ -44,13 +44,26 @@ export class ChangedFile extends React.Component<IChangedFileProps, {}> {
     let tooltipText = fileStatus;
     if (isLfs) {
       tooltipText = file.isDownloaded ? "Downloaded" : "Not on Disk"
+
+      let sinceText = "";
+      if (file.lockedAt) {
+        sinceText = file.lockedAt.toLocaleString(Intl.DateTimeFormat().resolvedOptions().locale, {
+          weekday: 'short', // long, short, narrow
+          day: 'numeric', // numeric, 2-digit
+          year: 'numeric', // numeric, 2-digit
+          month: 'long', // numeric, 2-digit, long, short, narrow
+          hour: 'numeric', // numeric, 2-digit
+          minute: 'numeric'
+        });
+      }
+
       if (file.isLockedByMe) {
         fileStatus = "LockedByMe"
-        tooltipText += ` : Locked by me since ${file.lockedAt.toLocaleString()}`
+        tooltipText += ` : Locked by me since ${sinceText}`
       }
       else if (file.lockedByOther) {
         fileStatus = "LockedByOther"
-        tooltipText += ` : Locked by ${file.lockedByOther} since ${file.lockedAt.toLocaleString()}`
+        tooltipText += ` : Locked by ${file.lockedByOther} since ${sinceText}`
       }
       else {
         fileStatus = "NotLocked"
