@@ -166,7 +166,7 @@ interface IChangesListProps {
    */
   readonly onOpenItemInExternalEditor: (path: string) => void
 
-  readonly onDownloadLfsFile: (path: string) => void
+  readonly onDownloadLfsFile: (paths: Array<string>) => void
   readonly onLockLfsFile: (path: string) => void
   readonly onUnlockLfsFile: (path: string) => void
 
@@ -404,6 +404,22 @@ export class ChangesList extends React.Component<
     return this.props.askForConfirmationOnDiscardChanges ? `${label}…` : label
   }
 
+  private onDownloadLfsFiles = (files: ReadonlyArray<string>) => {
+    const filesToDownload = new Array<string>()
+
+    files.forEach(file => {
+      const fileToDownload = this.props.lfsDirectory.files.find(f => f.path === file)
+
+      if (fileToDownload != null) {
+        filesToDownload.push(fileToDownload.path)
+      }
+    })
+
+    if (filesToDownload.length > 0) {
+      this.props.onDownloadLfsFile(filesToDownload)
+    }
+  }
+
   private onContextMenu = (event: React.MouseEvent<any>) => {
     event.preventDefault()
 
@@ -527,13 +543,13 @@ export class ChangesList extends React.Component<
   }
 
   private getDownloadLfsFileMenuItem = (
-    file: WorkingDirectoryFileChange,
+    paths: ReadonlyArray<string>,
     enabled: boolean
   ): IMenuItem => {
     return {
       label: DownloadLfsFileLabel,
       action: () => {
-        this.props.onDownloadLfsFile(file.path)
+        this.onDownloadLfsFiles(paths)
       },
       enabled
     }
@@ -708,7 +724,7 @@ export class ChangesList extends React.Component<
       const downloadEnabled = !file.isDownloaded
       items.push(
         { type: 'separator' },
-        this.getDownloadLfsFileMenuItem(file, downloadEnabled),
+        this.getDownloadLfsFileMenuItem(paths, downloadEnabled),
         this.getLockLfsFileMenuItem(file, true),
         this.getUnlockLfsFileMenuItem(file, true)
       )

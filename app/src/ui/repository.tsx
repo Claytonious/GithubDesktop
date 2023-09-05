@@ -80,7 +80,7 @@ interface IRepositoryViewProps {
    * @param fullPath The full path to the file on disk
    */
   readonly onOpenInExternalEditor: (fullPath: string) => void
-  readonly onDownloadLfsFile: (fullPath: string) => void
+  readonly onDownloadLfsFile: (paths: Array<string>) => void
   readonly onLockLfsFile: (fullPath: string) => void
   readonly onUnlockLfsFile: (fullPath: string) => void
 

@@ -26,9 +26,21 @@ export async function installLFSHooks(
 
 export async function downloadLfsFile(
   repository: Repository,
-  path: string
+  paths: Array<string>
 ): Promise<void> {
-  const args = ['lfs', 'pull', '--exclude=', '--include', path]
+  let includeArg = "--include="
+  const args = ['lfs', 'pull', '--exclude=']
+
+  if (paths.length === 1) {
+    includeArg = paths[0]
+  }
+  else {
+    for(let i = 0; i < paths.length - 1; i++) {
+      includeArg += `${paths[i]},`
+    }
+    includeArg += paths[paths.length - 1]
+  }
+  args.push(includeArg)
   await git(args, repository.path, 'downloadLfsFile')
 }
 

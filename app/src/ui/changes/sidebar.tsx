@@ -69,7 +69,7 @@ interface IChangesSidebarProps {
    * @param fullPath The full path to the file on disk
    */
   readonly onOpenInExternalEditor: (fullPath: string) => void
-  readonly onDownloadLfsFile: (fullPath: string) => void
+  readonly onDownloadLfsFile: (paths: Array<string>) => void
   readonly onLockLfsFile: (fullPath: string) => void
   readonly onUnlockLfsFile: (fullPath: string) => void
   readonly onChangesListScrolled: (scrollTop: number) => void
@@ -274,8 +274,8 @@ export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
     this.props.onOpenInExternalEditor(path)
   }
 
-  private onDownloadLfsFile = (path: string) => {
-    this.props.onDownloadLfsFile(path)
+  private onDownloadLfsFile = (paths: Array<string>) => {
+    this.props.onDownloadLfsFile(paths)
   }
 
   private onLockLfsFile = (path: string) => {

@@ -1403,8 +1403,8 @@ export class Dispatcher {
     return this.appStore._openInExternalEditor(fullPath)
   }
 
-  public async downloadLfsFile(repository: Repository, path: string): Promise<void> {
-    return this.appStore._downloadLfsFile(repository, path)
+  public async downloadLfsFile(repository: Repository, paths: Array<string>): Promise<void> {
+    return this.appStore._downloadLfsFile(repository, paths)
   }
 
   public async lockLfsFile(repository: Repository, path: string): Promise<void> {

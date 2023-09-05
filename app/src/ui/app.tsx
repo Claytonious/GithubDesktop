@@ -2807,12 +2807,12 @@ export class App extends React.Component<IAppProps, IAppState> {
     this.props.dispatcher.openInExternalEditor(fullPath)
   }
 
-  private onDownloadLfsFile = (path: string) => {
+  private onDownloadLfsFile = (paths: Array<string>) => {
     const repository = this.state.selectedState?.repository
     if (repository === undefined || !(repository instanceof Repository)) {
       return
     }
-    this.props.dispatcher.downloadLfsFile(repository, path)
+    this.props.dispatcher.downloadLfsFile(repository, paths)
   }
 
   private onLockLfsFile = (path: string) => {
