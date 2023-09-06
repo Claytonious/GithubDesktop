@@ -167,8 +167,8 @@ interface IChangesListProps {
   readonly onOpenItemInExternalEditor: (path: string) => void
 
   readonly onDownloadLfsFile: (paths: Array<string>) => void
-  readonly onLockLfsFile: (path: string) => void
-  readonly onUnlockLfsFile: (path: string) => void
+  readonly onLockLfsFile: (paths: Array<string>) => void
+  readonly onUnlockLfsFile: (paths: Array<string>) => void
 
   /**
    * The currently checked out branch (null if no branch is checked out).
@@ -420,6 +420,38 @@ export class ChangesList extends React.Component<
     }
   }
 
+  private onLockLfsFiles = (files: ReadonlyArray<string>) => {
+    const filesToLock = new Array<string>()
+
+    files.forEach(file => {
+      const fileToLock = this.props.lfsDirectory.files.find(f => f.path === file)
+
+      if (fileToLock != null) {
+        filesToLock.push(fileToLock.path)
+      }
+    })
+
+    if (filesToLock.length > 0) {
+      this.props.onLockLfsFile(filesToLock)
+    }
+  }
+
+  private onUnlockLfsFiles = (files: ReadonlyArray<string>) => {
+    const filesToUnlock = new Array<string>()
+
+    files.forEach(file => {
+      const fileToUnlock = this.props.lfsDirectory.files.find(f => f.path === file)
+
+      if (fileToUnlock != null) {
+        filesToUnlock.push(fileToUnlock.path)
+      }
+    })
+
+    if (filesToUnlock.length > 0) {
+      this.props.onUnlockLfsFile(filesToUnlock)
+    }
+  }
+
   private onContextMenu = (event: React.MouseEvent<any>) => {
     event.preventDefault()
 
@@ -556,26 +588,26 @@ export class ChangesList extends React.Component<
   }
 
   private getLockLfsFileMenuItem = (
-    file: WorkingDirectoryFileChange,
+    paths: ReadonlyArray<string>,
     enabled: boolean
   ): IMenuItem => {
     return {
       label: LockLfsFileLabel,
       action: () => {
-        this.props.onLockLfsFile(file.path)
+        this.onLockLfsFiles(paths)
       },
       enabled
     }
   }
 
   private getUnlockLfsFileMenuItem = (
-    file: WorkingDirectoryFileChange,
+    paths: ReadonlyArray<string>,
     enabled: boolean
   ): IMenuItem => {
     return {
       label: UnlockLfsFileLabel,
       action: () => {
-        this.props.onUnlockLfsFile(file.path)
+        this.onUnlockLfsFiles(paths)
       },
       enabled
     }
@@ -725,8 +757,8 @@ export class ChangesList extends React.Component<
       items.push(
         { type: 'separator' },
         this.getDownloadLfsFileMenuItem(paths, downloadEnabled),
-        this.getLockLfsFileMenuItem(file, true),
-        this.getUnlockLfsFileMenuItem(file, true)
+        this.getLockLfsFileMenuItem(paths, true),
+        this.getUnlockLfsFileMenuItem(paths, true)
       )
     }
 

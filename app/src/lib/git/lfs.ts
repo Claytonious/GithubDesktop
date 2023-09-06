@@ -46,18 +46,22 @@ export async function downloadLfsFile(
 
 export async function lockLfsFile(
   repository: Repository,
-  path: string
+  paths: Array<string>
 ): Promise<void> {
-  const args = ['lfs', 'lock', path]
-  await git(args, repository.path, 'lockLfsFile')
+  for (let i = 0; i < paths.length; i++) {
+    const args = ['lfs', 'lock', paths[i]]
+    await git(args, repository.path, 'lockLfsFile')
+  }
 }
 
 export async function unlockLfsFile(
   repository: Repository,
-  path: string
+  paths: Array<string>
 ): Promise<void> {
-  const args = ['lfs', 'unlock', path]
-  await git(args, repository.path, 'unlockLfsFile')
+  for (let i = 0; i < paths.length; i++) {
+    const args = ['lfs', 'unlock', paths[i]]
+    await git(args, repository.path, 'unlockLfsFile')
+  }
 }
 
 /** Is the repository configured to track any paths with LFS? */

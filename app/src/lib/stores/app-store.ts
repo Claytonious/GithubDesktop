@@ -5455,18 +5455,18 @@ export class AppStore extends TypedBaseStore<IAppState> {
     }
   }
 
-  public async _lockLfsFile(repository: Repository, path: string): Promise<void> {
+  public async _lockLfsFile(repository: Repository, paths: Array<string>): Promise<void> {
     try {
-      await lockLfsFile(repository, path)
+      await lockLfsFile(repository, paths)
       return this._refreshRepository(repository)
     } catch (error) {
       this.emitError(error)
     }
   }
 
-  public async _unlockLfsFile(repository: Repository, path: string): Promise<void> {
+  public async _unlockLfsFile(repository: Repository, paths: Array<string>): Promise<void> {
     try {
-      await unlockLfsFile(repository, path)
+      await unlockLfsFile(repository, paths)
       return this._refreshRepository(repository)
     } catch (error) {
       this.emitError(error)

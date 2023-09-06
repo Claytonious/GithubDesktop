@@ -70,8 +70,8 @@ interface IChangesSidebarProps {
    */
   readonly onOpenInExternalEditor: (fullPath: string) => void
   readonly onDownloadLfsFile: (paths: Array<string>) => void
-  readonly onLockLfsFile: (fullPath: string) => void
-  readonly onUnlockLfsFile: (fullPath: string) => void
+  readonly onLockLfsFile: (paths: Array<string>) => void
+  readonly onUnlockLfsFile: (paths: Array<string>) => void
   readonly onChangesListScrolled: (scrollTop: number) => void
   readonly changesListScrollTop?: number
 
@@ -278,12 +278,12 @@ export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
     this.props.onDownloadLfsFile(paths)
   }
 
-  private onLockLfsFile = (path: string) => {
-    this.props.onLockLfsFile(path)
+  private onLockLfsFile = (paths: Array<string>) => {
+    this.props.onLockLfsFile(paths)
   }
 
-  private onUnlockLfsFile = (path: string) => {
-    this.props.onUnlockLfsFile(path)
+  private onUnlockLfsFile = (paths: Array<string>) => {
+    this.props.onUnlockLfsFile(paths)
   }
 
   /**

@@ -1407,12 +1407,12 @@ export class Dispatcher {
     return this.appStore._downloadLfsFile(repository, paths)
   }
 
-  public async lockLfsFile(repository: Repository, path: string): Promise<void> {
-    return this.appStore._lockLfsFile(repository, path)
+  public async lockLfsFile(repository: Repository, paths: Array<string>): Promise<void> {
+    return this.appStore._lockLfsFile(repository, paths)
   }
 
-  public async unlockLfsFile(repository: Repository, path: string): Promise<void> {
-    return this.appStore._unlockLfsFile(repository, path)
+  public async unlockLfsFile(repository: Repository, paths: Array<string>): Promise<void> {
+    return this.appStore._unlockLfsFile(repository, paths)
   }
 
   /**

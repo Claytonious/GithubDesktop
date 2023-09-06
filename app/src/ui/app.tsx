@@ -2815,20 +2815,20 @@ export class App extends React.Component<IAppProps, IAppState> {
     this.props.dispatcher.downloadLfsFile(repository, paths)
   }
 
-  private onLockLfsFile = (path: string) => {
+  private onLockLfsFile = (paths: Array<string>) => {
     const repository = this.state.selectedState?.repository
     if (repository === undefined || !(repository instanceof Repository)) {
       return
     }
-    this.props.dispatcher.lockLfsFile(repository, path)
+    this.props.dispatcher.lockLfsFile(repository, paths)
   }
 
-  private onUnlockLfsFile = (path: string) => {
+  private onUnlockLfsFile = (paths: Array<string>) => {
     const repository = this.state.selectedState?.repository
     if (repository === undefined || !(repository instanceof Repository)) {
       return
     }
-    this.props.dispatcher.unlockLfsFile(repository, path)
+    this.props.dispatcher.unlockLfsFile(repository, paths)
   }
 
   private showRepository = (repository: Repository | CloningRepository) => {
